@@ -96,20 +96,9 @@ usermod -aG docker $user
 
 echo "Docker installed"
 
-#portainer
-echo "Starting portainer..."
-docker volume create portainer_data
-docker run -d -p 8000:8000 -p 9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/srv/data/portainer_data portainer/portainer-ce:lts
-echo "Portainer started"
-
 #self signed cert for traefik
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
   -keyout ./traefik/certs/local.key -out ./traefik/certs/local.crt \
   -subj "/CN=*.teszt"
 
 docker compose -f ./traefik/docker-compose.yaml up -d
-
-
-
-
-
