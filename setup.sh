@@ -3,7 +3,7 @@
 #setting up basic variables
 user=$(tail -n 1 /etc/passwd | cut -d: -f1)
 network_share_name="homeshare"
-proxy_user=$(htpasswd -nb admin "P@ssw0rd" | sed -e 's/\$/\$\$/g')
+
 
 # basic configurations
 mkdir /scripts
@@ -75,6 +75,9 @@ chmod 750 ./traefik/certs
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
   -keyout ./traefik/certs/local.key -out ./traefik/certs/local.crt \
   -subj "/CN=*.$hostname"
+
+apt-get -y install apache2-utils
+proxy_user=$(htpasswd -nb admin "P@ssw0rd" | sed -e 's/\$/\$\$/g')
 
 HOSTNAME=$hostname PROXY_USER=$proxy_user docker compose -f ./traefik/docker-compose.yaml up -d
 
