@@ -58,14 +58,14 @@ services:
       - "traefik.enable=true"
 
       # Dashboard router
-      - "traefik.http.routers.dashboard.rule=Host(`dashboard.teszt`)"
+      - "traefik.http.routers.dashboard.rule=Host(`dashboard.${HOSTNAME}``)"
       - "traefik.http.routers.dashboard.entrypoints=websecure"
       - "traefik.http.routers.dashboard.service=api@internal"
       - "traefik.http.routers.dashboard.tls=true"
 
       # Basic‑auth middleware
       # password: P@ssw0rd
-      - "traefik.http.middlewares.dashboard-auth.basicauth.users=admin:$$apr1$$2Wa8HOjv$$ufvL0F1p.cfLwjmgJdAMR."
+      - "traefik.http.middlewares.dashboard-auth.basicauth.users=${PROXY_USER}"
       - "traefik.http.routers.dashboard.middlewares=dashboard-auth@docker"
 
 # Whoami application
@@ -77,7 +77,7 @@ services:
       - proxy
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.whoami.rule=Host(`whoami.teszt`)"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.${HOSTNAME}``)"
       - "traefik.http.routers.whoami.entrypoints=websecure"
       - "traefik.http.routers.whoami.tls=true"
 

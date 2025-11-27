@@ -1,14 +1,11 @@
 #!/bin/bash
-echo "Starting setup script....."
 
 #setting up basic variables
 user=$(tail -n 1 /etc/passwd | cut -d: -f1)
-echo "User $user found. Working with this user"
+network_share_name="homeshare"
+proxy_user=$(htpasswd -nb admin "P@ssw0rd" | sed -e 's/\$/\$\$/g')
 
 # basic configurations
-
-echo "Creating folders...."
-
 mkdir /scripts
 chmod 750 /scripts
 
@@ -16,23 +13,14 @@ mkdir /srv/data
 chown $user /srv/data
 chmod 750 /srv/data
 
-echo "Folders created"
-
 #apt update and upgrade
-
-echo "Updating repositories...."
-apt-get update >> log.out
-echo "Repos updated"
-echo "Upgrading..."
-apt-get -y upgrade >> log.out
-echo "Upgraded"
+apt-get update
+apt-get -y upgrade
 
 # samba install and setup
 
-echo "Installing samba...."
-apt-get -y install samba >> log.out
-echo "Samba installed..."
-echo "[datashare]" >> /etc/samba/smb.conf
+apt-get -y install samba
+echo "[$network_share_name]" >> /etc/samba/smb.conf
 echo "  comment = Samaba on Ubuntu" >> /etc/samba/smb.conf
 echo "  path = /srv/data" >> /etc/samba/smb.conf
 echo "  read only = no" >> /etc/samba/smb.conf
@@ -43,29 +31,21 @@ ufw allow samba
 
 echo "Provide SMB password for user: $user"
 smbpasswd -a $user
-echo "Password set!"
-echo "Samba installed"
 
 # backup script
-
-echo "Creating backup job...."
 
 cp ./scripts/backup.py /scripts
 chown root /scripts/backup.py
 chmod 750 /scripts/backup.py
 echo "0 4 * * * root /usr/bin/python3 /scripts/backup.py" >> /etc/crontab
 
-echo "Backup job created"
-
 #docker
-
-echo "Installing docker..."
 
 #setup docker apt repository
 #https://docs.docker.com/engine/install/ubuntu/
 
 # Add Docker's official GPG key:
-apt install ca-certificates curl >> log.out
+apt install ca-certificates curl
 install -m 0755 -d /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
 chmod a+r /etc/apt/keyrings/docker.asc
@@ -79,17 +59,14 @@ Components: stable
 Signed-By: /etc/apt/keyrings/docker.asc
 EOF
 
-apt update >> log.out
+apt update
 
 #install
-apt -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin >> log.out
+apt -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 systemctl start docker
 
 #post installation steps
-echo $user
 usermod -aG docker $user
-
-echo "Docker installed"
 
 #traefik
 mkdir ./traefik/certs
@@ -97,9 +74,9 @@ chmod 750 ./traefik/certs
 
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
   -keyout ./traefik/certs/local.key -out ./traefik/certs/local.crt \
-  -subj "/CN=*.teszt"
+  -subj "/CN=*.$hostname"
 
-docker compose -f ./traefik/docker-compose.yaml up -d
+HOSTNAME=$hostname PROXY_USER=$proxy_user docker compose -f ./traefik/docker-compose.yaml up -d
 
 #portainer
-docker compose -f ./portainer/docker-compose.yaml up -d
+HOSTNAME=$hostname docker compose -f ./portainer/docker-compose.yaml up -d
