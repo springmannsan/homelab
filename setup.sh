@@ -13,13 +13,13 @@ mkdir /srv/data
 chown user /srv/data
 chmod 750 /srv/data
 
-mkdir /srv/configs
-chown user /srv/configs
-chmod 750 /srv/data
-
 mkdir /scripts
 chown root /scripts
 chmod 750 /scripts
+
+mkdir /certs
+chown root /certs
+chmod 750 /certs
 
 echo "Folders created"
 
@@ -96,3 +96,21 @@ usermod -aG docker $user
 newgrp docker
 
 echo "Docker installed"
+
+#portainer
+echo "Starting portainer..."
+docker volume create portainer_data
+docker run -d -p 8000:8000 -p 9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/srv/data/portainer_data portainer/portainer-ce:lts
+echo "Portainer started"
+
+#self signed cert for traefik
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout certs/local.key -out certs/local.crt \
+  -subj "/CN=*.homeserver.lan"
+
+docker compose -f ./traefik/docker-compose.yaml up -d
+
+
+
+
+
