@@ -105,7 +105,7 @@ echo "Portainer started"
 #self signed cert for traefik
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
   -keyout ./certs/local.key -out ./certs/local.crt \
-  -subj "/CN=*.homeserver.lan"
+  -subj "/CN=*.teszt"
 
 docker compose -f ./traefik/docker-compose.yaml up -d
 
