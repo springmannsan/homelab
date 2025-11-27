@@ -9,17 +9,12 @@ echo "User $user found. Working with this user"
 
 echo "Creating folders...."
 
-mkdir /srv/data
-chown user /srv/data
-chmod 750 /srv/data
-
 mkdir /scripts
-chown root /scripts
 chmod 750 /scripts
 
-mkdir ./traefik/certs
-chown root ./traefik/certs
-chmod 750 ./traefik/certs
+mkdir /srv/data
+chown $user /srv/data
+chmod 750 /srv/data
 
 echo "Folders created"
 
@@ -96,9 +91,15 @@ usermod -aG docker $user
 
 echo "Docker installed"
 
-#self signed cert for traefik
+#traefik
+mkdir ./traefik/certs
+chmod 750 ./traefik/certs
+
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
   -keyout ./traefik/certs/local.key -out ./traefik/certs/local.crt \
   -subj "/CN=*.teszt"
 
 docker compose -f ./traefik/docker-compose.yaml up -d
+
+#portainer
+docker compose -f ./portainer/docker-compose.yaml up -d

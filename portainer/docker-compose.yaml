@@ -1,21 +1,27 @@
 services:
   portainer:
-    container_name: portainer
     image: portainer/portainer-ce:lts
     restart: always
+    networks:
+      - proxy 
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
+    labels:
+      # Frontend
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`portainer.teszt`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.services.frontend.loadbalancer.server.port=9000"
+      - "traefik.http.routers.frontend.service=frontend"
+      - "traefik.http.routers.frontend.tls.certresolver=leresolver"
+
     # ports:
     #   - 9443:9443
 
 volumes:
   portainer_data:
-    driver: local
-    driver_opts:
-      device: /srv/portainer_data
-      o: bind
-      type: local
+    name: portainer_data
 
 networks:
   proxy:
