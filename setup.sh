@@ -2,7 +2,7 @@
 echo "Starting setup script....."
 
 #setting up basic variables
-user = tail -n 1 /etc/passwd | cut -d: -f1
+user=tail -n 1 /etc/passwd | cut -d: -f1
 echo "User $user found. Working with this user"
 
 # basic configurations
@@ -104,7 +104,7 @@ echo "Portainer started"
 
 #self signed cert for traefik
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-  -keyout ./certs/local.key -out ./certs/local.crt \
+  -keyout ./traefik/certs/local.key -out ./traefik/certs/local.crt \
   -subj "/CN=*.teszt"
 
 docker compose -f ./traefik/docker-compose.yaml up -d
