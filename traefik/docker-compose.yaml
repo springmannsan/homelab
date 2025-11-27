@@ -1,6 +1,6 @@
 services:
   traefik:
-    image: traefik:v3.4
+    image: traefik:v3.6.1
     container_name: traefik
     restart: unless-stopped
     security_opt:
@@ -44,6 +44,12 @@ services:
       # Observability 
       - "--log.level=INFO"
       - "--accesslog=true"
+
+      # access log config
+      - "--accesslog.format=json"
+      - "--accesslog.filepath=/logs/access.log"
+
+      # prometheus
       - "--metrics.prometheus=true"
 
   # Traefik Dynamic configuration via Docker labels
@@ -52,7 +58,7 @@ services:
       - "traefik.enable=true"
 
       # Dashboard router
-      - "traefik.http.routers.dashboard.rule=Host(`dashboard.teszt)"
+      - "traefik.http.routers.dashboard.rule=Host(`dashboard.teszt`)"
       - "traefik.http.routers.dashboard.entrypoints=websecure"
       - "traefik.http.routers.dashboard.service=api@internal"
       - "traefik.http.routers.dashboard.tls=true"
