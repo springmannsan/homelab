@@ -91,9 +91,7 @@ apt -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker
 systemctl start docker
 
 #post installation steps
-groupadd docker
 usermod -aG docker $user
-newgrp docker
 
 echo "Docker installed"
 
