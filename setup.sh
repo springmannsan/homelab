@@ -17,9 +17,9 @@ mkdir /scripts
 chown root /scripts
 chmod 750 /scripts
 
-mkdir /certs
-chown root /certs
-chmod 750 /certs
+mkdir ./certs
+chown root ./certs
+chmod 750 ./certs
 
 echo "Folders created"
 
@@ -91,6 +91,7 @@ apt -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker
 systemctl start docker
 
 #post installation steps
+echo $user
 usermod -aG docker $user
 
 echo "Docker installed"
@@ -103,7 +104,7 @@ echo "Portainer started"
 
 #self signed cert for traefik
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-  -keyout certs/local.key -out certs/local.crt \
+  -keyout ./certs/local.key -out ./certs/local.crt \
   -subj "/CN=*.homeserver.lan"
 
 docker compose -f ./traefik/docker-compose.yaml up -d
