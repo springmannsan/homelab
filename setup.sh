@@ -2,7 +2,7 @@
 echo "Starting setup script....."
 
 #setting up basic variables
-user=tail -n 1 /etc/passwd | cut -d: -f1
+user=$(tail -n 1 /etc/passwd | cut -d: -f1)
 echo "User $user found. Working with this user"
 
 # basic configurations
@@ -17,9 +17,9 @@ mkdir /scripts
 chown root /scripts
 chmod 750 /scripts
 
-mkdir ./certs
-chown root ./certs
-chmod 750 ./certs
+mkdir ./traefik/certs
+chown root ./traefik/certs
+chmod 750 ./traefik/certs
 
 echo "Folders created"
 
