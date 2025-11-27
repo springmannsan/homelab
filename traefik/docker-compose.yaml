@@ -52,7 +52,7 @@ services:
       - "traefik.enable=true"
 
       # Dashboard router
-      - "traefik.http.routers.dashboard.rule=Host(`dashboard.homeserver.lan`)"
+      - "traefik.http.routers.dashboard.rule=Host(`dashboard.teszt)"
       - "traefik.http.routers.dashboard.entrypoints=websecure"
       - "traefik.http.routers.dashboard.service=api@internal"
       - "traefik.http.routers.dashboard.tls=true"
@@ -70,7 +70,7 @@ services:
       - proxy
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.whoami.rule=Host(`whoami.homeserver.lan`)"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.teszt`)"
       - "traefik.http.routers.whoami.entrypoints=websecure"
       - "traefik.http.routers.whoami.tls=true"
 
