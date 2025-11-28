@@ -3,6 +3,7 @@
 #setting up basic variables
 user=$(tail -n 1 /etc/passwd | cut -d: -f1)
 network_share_name="homeshare"
+hostname="springmannsan.me"
 
 # basic configurations
 mkdir /scripts
@@ -75,7 +76,7 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
   -keyout ./traefik/certs/local.key -out ./traefik/certs/local.crt \
   -subj "/CN=*.$hostname"
 
-HOSTNAME=$(hostname) docker compose -f ./traefik/docker-compose.yaml up -d
+HOSTNAME=$hostname docker compose -f ./traefik/docker-compose.yaml up -d
 
 #portainer
-HOSTNAME=$(hostname) docker compose -f ./portainer/docker-compose.yaml up -d
+HOSTNAME=$hostname docker compose -f ./portainer/docker-compose.yaml up -d
