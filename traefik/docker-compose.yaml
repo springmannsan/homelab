@@ -64,9 +64,8 @@ services:
       - "traefik.http.routers.dashboard.tls=true"
 
       # Basic‑auth middleware
-      # password: P@ssw0rd
-      - "traefik.http.middlewares.dashboard-auth.basicauth.users=${PROXY_USER}"
-      - "traefik.http.routers.dashboard.middlewares=dashboard-auth@docker"
+      # - "traefik.http.middlewares.dashboard-auth.basicauth.users=<HASH>"
+      # - "traefik.http.routers.dashboard.middlewares=dashboard-auth@docker"
 
 # Whoami application
   whoami:
