@@ -7,7 +7,7 @@ mkdir /scripts
 chmod 750 /scripts
 
 mkdir /srv/data
-chown $$USER /srv/data
+chown $USER /srv/data
 chmod 750 /srv/data
 
 #apt update and upgrade
@@ -26,8 +26,8 @@ echo "  browsable = yes" >> /etc/samba/smb.conf
 service smbd restart
 ufw allow samba
 
-echo "Provide SMB password for $USER: $$USER"
-smbpasswd -a $$USER
+echo "Provide SMB password for $USER:"
+smbpasswd -a $USER
 
 # backup script
 

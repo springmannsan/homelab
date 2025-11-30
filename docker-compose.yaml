@@ -64,7 +64,7 @@ services:
       #comment out for PROD 
       - "--certificatesresolvers.le.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
       # Optionally make 'le' the default resolver for TLS-enabled routers
-      - "--entrypoints.websecure.http.tls.certresolver=le
+      - "--entrypoints.websecure.http.tls.certresolver=le"
 
     labels:
       # Enable self‑routing
