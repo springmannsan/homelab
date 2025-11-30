@@ -1,16 +1,13 @@
 #!/bin/bash
 
-#setting up basic variables
-user=$(tail -n 1 /etc/passwd | cut -d: -f1)
-network_share_name="homeshare"
-hostname="springmannsan.me"
+source .env
 
 # basic configurations
 mkdir /scripts
 chmod 750 /scripts
 
 mkdir /srv/data
-chown $user /srv/data
+chown $$USER /srv/data
 chmod 750 /srv/data
 
 #apt update and upgrade
@@ -20,7 +17,7 @@ apt-get -y upgrade
 # samba install and setup
 
 apt-get -y install samba
-echo "[$network_share_name]" >> /etc/samba/smb.conf
+echo "[$SHARE_NAME]" >> /etc/samba/smb.conf
 echo "  comment = Samaba on Ubuntu" >> /etc/samba/smb.conf
 echo "  path = /srv/data" >> /etc/samba/smb.conf
 echo "  read only = no" >> /etc/samba/smb.conf
@@ -29,8 +26,8 @@ echo "  browsable = yes" >> /etc/samba/smb.conf
 service smbd restart
 ufw allow samba
 
-echo "Provide SMB password for user: $user"
-smbpasswd -a $user
+echo "Provide SMB password for $USER: $$USER"
+smbpasswd -a $$USER
 
 # backup script
 
@@ -66,17 +63,9 @@ apt -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker
 systemctl start docker
 
 #post installation steps
-usermod -aG docker $user
+$USERmod -aG docker $$USER
 
-#traefik
-mkdir ./traefik/certs
-chmod 750 ./traefik/certs
+#start containers
+chmod 600 ./cert/acme.json
+docker compose up -d --force-recreate
 
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-  -keyout ./traefik/certs/local.key -out ./traefik/certs/local.crt \
-  -subj "/CN=*.$hostname"
-
-HOSTNAME=$hostname docker compose -f ./traefik/docker-compose.yaml up -d
-
-#portainer
-HOSTNAME=$hostname docker compose -f ./portainer/docker-compose.yaml up -d

@@ -15,10 +15,18 @@ services:
       - "443:443"
       - "8080:8080"
 
+    environment:
+      CF_DNS_API_TOKEN: ${CF_DNS_API_TOKEN}
+      TRAEFIK_DASHBOARD_CREDENTIALS: ${TRAEFIK_DASHBOARD_CREDENTIALS}
+      NAME: ${NAME}
+      EMAIL: ${EMAIL}
+
+    env_file: .env
+    
     volumes:
+      - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./certs:/certs:ro
-      - ./dynamic:/dynamic:ro
+      - ./cert/acme.json:/acme.json
 
     command:
       # EntryPoints
@@ -27,10 +35,7 @@ services:
       - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
       - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
       - "--entrypoints.websecure.address=:443"
-      - "--entrypoints.websecure.http.tls=true"
-
-      # Attach the static configuration tls.yaml file that contains the tls configuration settings
-      - "--providers.file.filename=/dynamic/tls.yaml"
+      - "--entrypoints.websecure.http.tls=true"      
 
       # Providers 
       - "--providers.docker=true"
@@ -44,29 +49,35 @@ services:
       # Observability 
       - "--log.level=INFO"
       - "--accesslog=true"
-
-      # access log config
-      - "--accesslog.format=json"
-      - "--accesslog.filepath=/logs/access.log"
-
-      # prometheus
       - "--metrics.prometheus=true"
 
-  # Traefik Dynamic configuration via Docker labels
+
+      # API & Dashboard 
+      - "--api.dashboard=true"
+      - "--api.insecure=false"
+
+      # ACME
+      - "--certificatesresolvers.le.acme.dnschallenge=true"
+      - "--certificatesresolvers.le.acme.email=${EMAIL}"
+      - "--certificatesresolvers.le.acme.storage=/acme.json"
+      - "--certificatesresolvers.le.acme.dnschallenge.provider=cloudflare" 
+      - "--certificatesresolvers.le.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      # Optionally make 'le' the default resolver for TLS-enabled routers
+      - "--entrypoints.websecure.http.tls.certresolver=le
+
     labels:
       # Enable self‑routing
       - "traefik.enable=true"
 
       # Dashboard router
-      - "traefik.http.routers.dashboard.rule=Host(`dashboard.${HOSTNAME}`)"
+      - "traefik.http.routers.dashboard.rule=Host(`dashboard.${NAME}`)"
       - "traefik.http.routers.dashboard.entrypoints=websecure"
       - "traefik.http.routers.dashboard.service=api@internal"
-      - "traefik.http.routers.dashboard.tls=true"
 
       # Basic‑auth middleware
-      # - "traefik.http.middlewares.dashboard-auth.basicauth.users=<HASH>"
-      # - "traefik.http.routers.dashboard.middlewares=dashboard-auth@docker"
-
+      - "traefik.http.middlewares.dashboard-auth.basicauth.users=${TRAEFIK_DASHBOARD_CREDENTIALS}"
+      - "traefik.http.routers.dashboard.middlewares=dashboard-auth@docker"
+    
 # Whoami application
   whoami:
     image: traefik/whoami
@@ -76,9 +87,8 @@ services:
       - proxy
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.whoami.rule=Host(`whoami.${HOSTNAME}`)"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.${NAME}`)"
       - "traefik.http.routers.whoami.entrypoints=websecure"
-      - "traefik.http.routers.whoami.tls=true"
 
 networks:
   proxy:
