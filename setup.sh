@@ -63,9 +63,9 @@ apt -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker
 systemctl start docker
 
 #post installation steps
-$USERmod -aG docker $$USER
+usermod -aG docker $USER
 
 #start containers
 chmod 600 ./cert/acme.json
-docker compose up -d --force-recreate
+docker compose up -d
 
