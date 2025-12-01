@@ -92,21 +92,16 @@ services:
     labels:
       # proxy settings
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`portainer.${NAME}`)"
-      - "traefik.http.routers.frontend.entrypoints=websecure"
-      - "traefik.http.services.frontend.loadbalancer.server.port=9000"
-      - "traefik.http.routers.frontend.service=portainer"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.${NAME}`)"
+      - "traefik.http.routers.portainer.entrypoints=websecure"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+      - "traefik.http.routers.portainer.service=portainer"
 
     # ports:
     #   - 9443:9443
-
 volumes:
   portainer_data:
-    driver: local
-    driver_opts:
-      device: ${CONTAINER_DATA_STORAGE_PATH}/portainer_data
-      o: bind
-      type: local
+    name: portainer_data
 networks:
   proxy:
     name: proxy
