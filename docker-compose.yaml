@@ -20,6 +20,7 @@ services:
       TRAEFIK_DASHBOARD_CREDENTIALS: ${TRAEFIK_DASHBOARD_CREDENTIALS}
       NAME: ${NAME}
       EMAIL: ${EMAIL}
+      CONTAINER_DATA_STORAGE_PATH: ${CONTAINER_DATA_STORAGE_PATH}
 
     env_file: .env
     
@@ -79,9 +80,9 @@ services:
       - "traefik.http.middlewares.dashboard-auth.basicauth.users=${TRAEFIK_DASHBOARD_CREDENTIALS}"
       - "traefik.http.routers.dashboard.middlewares=dashboard-auth@docker"
     
-# Whoami application
   portainer:
     image: portainer/portainer-ce:lts
+    container_name: portainer
     restart: always
     networks:
       - proxy 
@@ -89,20 +90,23 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
     labels:
-      # Frontend
+      # proxy settings
       - "traefik.enable=true"
       - "traefik.http.routers.frontend.rule=Host(`portainer.${NAME}`)"
       - "traefik.http.routers.frontend.entrypoints=websecure"
       - "traefik.http.services.frontend.loadbalancer.server.port=9000"
-      - "traefik.http.routers.frontend.service=frontend"
+      - "traefik.http.routers.frontend.service=portainer"
 
     # ports:
     #   - 9443:9443
 
 volumes:
   portainer_data:
-    name: portainer_data
-
+    driver: local
+    driver_opts:
+      device: ${CONTAINER_DATA_STORAGE_PATH}/portainer_data
+      o: bind
+      type: local
 networks:
   proxy:
     name: proxy
