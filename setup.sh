@@ -14,10 +14,6 @@ mkdir /srv/data/share
 chown $USER /srv/data/share
 chmod 750 /srv/data/share
 
-mkdir /srv/data/container-data
-chown $USER /srv/data/container-data
-chmod 750 /srv/data/container-data
-
 #apt update and upgrade
 apt-get update
 apt-get -y upgrade
