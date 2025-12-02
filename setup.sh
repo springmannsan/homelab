@@ -3,9 +3,6 @@
 source .env
 
 # basic configurations
-mkdir /scripts
-chmod 750 /scripts
-
 mkdir /srv/data
 chown $USER /srv/data
 chmod 750 /srv/data
@@ -34,11 +31,9 @@ echo "Provide SMB password for $USER:"
 smbpasswd -a $USER
 
 # backup script
-
-cp ./scripts/backup.py /scripts
-chown root /scripts/backup.py
-chmod 750 /scripts/backup.py
-echo "0 4 * * * root /usr/bin/python3 /scripts/backup.py" >> /etc/crontab
+chown root ./backup.py
+chmod 750 ./backup.py
+echo "0 4 * * * root /usr/bin/python3 /provision/homelab/backup.py" >> /etc/crontab
 
 #docker
 
