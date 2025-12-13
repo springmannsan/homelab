@@ -35,7 +35,7 @@ apt-get -y install python3-pip
 pip3 install -r requirements.txt --break-system-packages.
 chown root ./backup.py
 chmod 750 ./backup.py
-echo "0 4 * * * root /usr/bin/python3 /provision/homelab/backup.py" >> /etc/crontab
+echo "0 4 * * * root cd /provision/homelab && /usr/bin/python3 ./backup.py >> ./backup.log" >> /etc/crontab
 
 #docker
 
