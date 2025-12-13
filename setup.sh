@@ -3,13 +3,9 @@
 source .env
 
 # basic configurations
-mkdir /srv/data
-chown $USER /srv/data
-chmod 750 /srv/data
-
-mkdir /srv/data/share
-chown $USER /srv/data/share
-chmod 750 /srv/data/share
+mkdir /srv/share
+chown $USER /srv/share
+chmod 750 /srv/share
 
 #apt update and upgrade
 apt-get update
@@ -20,14 +16,14 @@ apt-get -y upgrade
 apt-get -y install samba
 echo "[$SHARE_NAME]" >> /etc/samba/smb.conf
 echo "  comment = Samaba on Ubuntu" >> /etc/samba/smb.conf
-echo "  path = /srv/data/share" >> /etc/samba/smb.conf
+echo "  path = /srv/share" >> /etc/samba/smb.conf
 echo "  read only = no" >> /etc/samba/smb.conf
 echo "  browsable = yes" >> /etc/samba/smb.conf
 
 service smbd restart
 ufw allow samba
 
-echo "Provide SMB password for $USER:"
+echo "Provide SMB password for $USER:" 
 smbpasswd -a $USER
 
 # backup script

@@ -1,3 +1,4 @@
+sudo -i
 mkdir /provision
 cd /provision
 git clone https://github.com/springmannsan/homelab.git
