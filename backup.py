@@ -10,13 +10,6 @@ def create_local_backup(backup_path, directories_to_backup: list):
 
     print("Creating local backup....")
 
-    #removing previous local backup if it exists
-    print(f"Remove previous local backup if exists: {backup_path}")
-    if os.path.exists(backup_path):
-        print("Previous local backup found..")
-        os.remove(backup_path)
-        print("Removed")
-
     try:
         with tarfile.open(backup_path, mode="w:gz") as tar_file:
             print("Local archive created")
@@ -106,6 +99,10 @@ def send_email(port, smtp_server, email_sender, email_receiver, password, messag
 
 def build_message(full_path, directories_to_backup, local_result, upload_response, email_sender, email_receiver, now) -> MIMEMultipart:
 
+    if not local_result:
+        print("Local backup missing")
+        return
+    
     local_backup_successful = False
     local_backup_path = "N/A"
     local_backup_size = 0
@@ -215,6 +212,24 @@ def build_message(full_path, directories_to_backup, local_result, upload_respons
 
     return message
 
+def remove_local_backup(backup_path):
+
+    print("Removing local backup....")
+
+    if not os.path.exists(backup_path):
+        print("Couldn't find local backup")
+
+    try:
+        os.remove(backup_path)
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+    
+    if os.path.exists(backup_path):
+        print("Couldn't remove local backup")
+    else:
+        print("Local backup removed")
+
+
 print("Script started")
 print("Loading variables")
 
@@ -236,17 +251,22 @@ email_receiver = os.getenv("EMAIL_RECEIVER")
 local_backup_path = os.getenv("LOCAL_BACKUP_PATH")
 
 print("Start backing up")
-backup_name = f"{now.year}-{now.month}-{now.day}-backup.tar.gz"
-# backup_name = "server-backup.tar.gz"
+#backup_name = f"{now.year}-{now.month}-{now.day}-backup.tar.gz"
+backup_name = "server-backup.tar.gz"
 full_local_backup_path = f"{local_backup_path}/{backup_name}"
 
-#creating local backup
-local_result = create_local_backup(full_local_backup_path, directories_to_backup)
-# uploading local backup
-upload_response = upload_backup(full_local_backup_path, backup_name)
-#bulding email from returned data
-message = build_message(full_local_backup_path, directories_to_backup, local_result, upload_response, email_sender, email_receiver, now)
-#sending email
-send_email(port, smtp_server, email_sender, email_receiver, password, message)
+if os.path.exists(local_backup_path) and directories_to_backup:
+    #creating local backup
+    local_result = create_local_backup(full_local_backup_path, directories_to_backup)
+    # uploading local backup
+    upload_response = upload_backup(full_local_backup_path, backup_name)
+    #bulding email from returned data
+    message = build_message(full_local_backup_path, directories_to_backup, local_result, upload_response, email_sender, email_receiver, now)
+    #sending email
+    send_email(port, smtp_server, email_sender, email_receiver, password, message)
+    #delete backup
+    remove_local_backup(full_local_backup_path)
+else:
+    print("Backup directory doesn't exists")
 
 print("Script finished")                           

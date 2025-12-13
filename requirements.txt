@@ -1,0 +1,8 @@
+annotated-types==0.7.0
+b2sdk==2.10.1
+certifi==2025.11.12
+charset-normalizer==3.4.4
+dotenv==0.9.9
+logfury==1.0.1
+python-dotenv==1.2.1
+requests==2.32.5

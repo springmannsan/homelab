@@ -7,6 +7,10 @@ mkdir /srv/share
 chown $USER /srv/share
 chmod 750 /srv/share
 
+mkdir /srv/backups
+chown root /srv/backups
+chmod 750 /srv/backups
+
 #apt update and upgrade
 apt-get update
 apt-get -y upgrade
@@ -27,6 +31,8 @@ echo "Provide SMB password for $USER:"
 smbpasswd -a $USER
 
 # backup script
+apt-get -y install python3-pip
+pip3 install -r requirements.txt --break-system-packages.
 chown root ./backup.py
 chmod 750 ./backup.py
 echo "0 4 * * * root /usr/bin/python3 /provision/homelab/backup.py" >> /etc/crontab
