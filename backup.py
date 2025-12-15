@@ -5,7 +5,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from discord_webhook import DiscordWebhook
+from discord_webhook import DiscordWebhook, DiscordEmbed
 
 def create_local_backup(backup_path, directories_to_backup: list):
 
@@ -237,7 +237,13 @@ def remove_local_backup(backup_path):
         print("Local backup removed")
 
 def send_discord_notification(discord_webhook):
-    webhook = DiscordWebhook(discord_webhook, content="Webhook message")
+    webhook = DiscordWebhook(discord_webhook, username="Backup report")
+    
+
+    embed = DiscordEmbed(title="Title", description="Report ran")
+
+    webhook.add_embed()
+
     response = webhook.execute()
 
 print("Script started")
