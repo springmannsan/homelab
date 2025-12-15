@@ -12,6 +12,7 @@ def create_local_backup(backup_path, directories_to_backup: list):
 
     try:
         with tarfile.open(backup_path, mode="w:gz") as tar_file:
+
             print("Local archive created")
             for d in directories_to_backup:
 
@@ -103,6 +104,10 @@ def build_message(full_path, directories_to_backup, local_result, upload_respons
         print("Local backup missing")
         return
     
+    if not upload_response:
+        print("Remote backup missing")
+        return
+    
     local_backup_successful = False
     local_backup_path = "N/A"
     local_backup_size = 0
@@ -121,15 +126,15 @@ def build_message(full_path, directories_to_backup, local_result, upload_respons
     except Exception as e:
         print(f"Unexcpected error: {e}")
 
-    if upload_response:
-        try: 
-            if upload_response.file_name and upload_response.size:
-                uploaded_backup_path = upload_response.file_name
-                uploaded_backup_size = upload_response.size
-                upload_successful = upload_response.size > 0
-        except AttributeError as e:
+
+    try: 
+        if upload_response.file_name and upload_response.size:
+            uploaded_backup_path = upload_response.file_name
+            uploaded_backup_size = upload_response.size
+            upload_successful = upload_response.size > 0
+    except AttributeError as e:
             print(f"Attribute error: {e}")
-        except Exception as e:
+    except Exception as e:
             print(f"Unexpected error: {e}")
     
     html_message = f"""\
@@ -153,7 +158,7 @@ def build_message(full_path, directories_to_backup, local_result, upload_respons
                     <th>Size (MB) </th>
                 </tr>
     """
-    
+
     all_size = 0
     all_folders_successful = True
     for d in directories_to_backup:
@@ -221,6 +226,10 @@ def remove_local_backup(backup_path):
 
     try:
         os.remove(backup_path)
+    except FileNotFoundError as e:
+        print(f"File not found error: {e}")
+    except PermissionError as e:
+        print(f"Permission denied: {e}")
     except Exception as e:
         print(f"Unexpected error: {e}")
     
@@ -237,7 +246,14 @@ now = datetime.now()
 
 load_dotenv()
 
-directories_to_backup = open("backup.directories.conf").read().splitlines()
+try:
+    directories_to_backup = open("backup.directories.conf").read().splitlines()
+except FileNotFoundError as e:
+    print(f"File not found error: {e}")
+except PermissionError as e:
+    print(f"Permission denied: {e}")
+except Exception as e:
+    print(f"Unexpected error: {e}")
 
 #loading environmental variables
 application_key_id = os.getenv("STORAGE_KEY_ID")
@@ -255,18 +271,15 @@ print("Start backing up")
 backup_name = "server-backup.tar.gz"
 full_local_backup_path = f"{local_backup_path}/{backup_name}"
 
-if os.path.exists(local_backup_path) and directories_to_backup:
-    #creating local backup
-    local_result = create_local_backup(full_local_backup_path, directories_to_backup)
-    # uploading local backup
-    upload_response = upload_backup(full_local_backup_path, backup_name)
-    #bulding email from returned data
-    message = build_message(full_local_backup_path, directories_to_backup, local_result, upload_response, email_sender, email_receiver, now)
-    #sending email
-    send_email(port, smtp_server, email_sender, email_receiver, password, message)
-    #delete backup
-    remove_local_backup(full_local_backup_path)
-else:
-    print("Backup directory doesn't exists")
+#creating local backup
+local_result = create_local_backup(full_local_backup_path, directories_to_backup)
+# uploading local backup
+upload_response = upload_backup(full_local_backup_path, backup_name)
+#bulding email from returned data
+message = build_message(full_local_backup_path, directories_to_backup, local_result, upload_response, email_sender, email_receiver, now)
+#sending email
+send_email(port, smtp_server, email_sender, email_receiver, password, message)
+#delete backup
+remove_local_backup(full_local_backup_path)
 
 print("Script finished")                           
