@@ -242,7 +242,7 @@ def send_discord_notification(discord_webhook):
 
     embed = DiscordEmbed(title="Title", description="Report ran")
 
-    webhook.add_embed()
+    webhook.add_embed(embed)
 
     response = webhook.execute()
 
