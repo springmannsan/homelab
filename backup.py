@@ -38,13 +38,17 @@ def create_local_backup(backup_path, directories_to_backup: list):
     print("Error occured during archiving")
     return None
 
-def upload_backup(backup_path, backup_name):
+def upload_backup(local_result, backup_path, backup_name):
 
     print("Uploading backup....")
 
     print("Checking local backup...")
     if not os.path.exists(backup_path):
         print("No local backup found")
+        return None
+    
+    if not (local_result and local_result > 0):
+        print("Local backup empty")
         return None
     
     info = b2.InMemoryAccountInfo()
@@ -109,7 +113,7 @@ def build_message(full_path, directories_to_backup, local_result, upload_respons
     uploaded_backup_size = 0
 
     try:
-        if os.path.exists(full_path):
+        if os.path.exists(full_path) and (local_result and local_result > 0):
             local_backup_path = full_path
             local_backup_size = os.path.getsize(full_path)
             local_backup_successful = local_backup_size > 0
@@ -117,7 +121,6 @@ def build_message(full_path, directories_to_backup, local_result, upload_respons
         print(f"OSError: {e}")
     except Exception as e:
         print(f"Unexcpected error: {e}")
-
 
     try: 
         if upload_response and (upload_response.file_name and upload_response.size):
@@ -267,7 +270,7 @@ full_local_backup_path = f"{local_backup_path}/{backup_name}"
 #creating local backup
 local_result = create_local_backup(full_local_backup_path, directories_to_backup)
 # uploading local backup
-upload_response = upload_backup(full_local_backup_path, backup_name)
+upload_response = upload_backup(local_result, full_local_backup_path, backup_name)
 #bulding email from returned data
 message = build_message(full_local_backup_path, directories_to_backup, local_result, upload_response, email_sender, email_receiver, now)
 #sending email
