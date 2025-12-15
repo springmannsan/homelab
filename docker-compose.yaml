@@ -124,10 +124,10 @@ services:
     labels:
       # proxy settings
       - "traefik.enable=true"
-      - "traefik.http.routers.portainer.rule=Host(`netdata.${NAME}`)"
-      - "traefik.http.routers.portainer.entrypoints=websecure"
-      - "traefik.http.services.portainer.loadbalancer.server.port=19999"
-      - "traefik.http.routers.portainer.service=netdata"
+      - "traefik.http.routers.netdata.rule=Host(`netdata.${NAME}`)"
+      - "traefik.http.routers.netdata.entrypoints=websecure"
+      - "traefik.http.services.netdata.loadbalancer.server.port=19999"
+      - "traefik.http.routers.netdata.service=netdata"
 
 volumes:
   netdataconfig:
