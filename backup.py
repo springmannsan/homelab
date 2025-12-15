@@ -5,6 +5,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from discord_webhook import DiscordWebhook
 
 def create_local_backup(backup_path, directories_to_backup: list):
 
@@ -235,6 +236,9 @@ def remove_local_backup(backup_path):
     else:
         print("Local backup removed")
 
+def send_discord_notification(discord_webhook):
+    webhook = DiscordWebhook(discord_webhook, content="Webhook message")
+    response = webhook.execute()
 
 print("Script started")
 print("Loading variables")
@@ -262,6 +266,7 @@ password = os.getenv("SMTP_PASSWORD")
 email_sender = os.getenv("EMAIL_SENDER")
 email_receiver = os.getenv("EMAIL_RECEIVER")
 local_backup_path = os.getenv("LOCAL_BACKUP_PATH")
+discord_webhook = os.getenv("DISCORD_WEBHOOK")
 
 print("Start backing up")
 #backup_name = f"{now.year}-{now.month}-{now.day}-backup.tar.gz"
@@ -269,14 +274,16 @@ backup_name = "server-backup.tar.gz"
 full_local_backup_path = f"{local_backup_path}/{backup_name}"
 
 #creating local backup
-local_result = create_local_backup(full_local_backup_path, directories_to_backup)
+#local_result = create_local_backup(full_local_backup_path, directories_to_backup)
 # uploading local backup
-upload_response = upload_backup(local_result, full_local_backup_path, backup_name)
+#upload_response = upload_backup(local_result, full_local_backup_path, backup_name)
 #bulding email from returned data
-message = build_message(full_local_backup_path, directories_to_backup, local_result, upload_response, email_sender, email_receiver, now)
+#message = build_message(full_local_backup_path, directories_to_backup, local_result, upload_response, email_sender, email_receiver, now)
 #sending email
-send_email(port, smtp_server, email_sender, email_receiver, password, message)
+#send_email(port, smtp_server, email_sender, email_receiver, password, message)
 #delete backup
-remove_local_backup(full_local_backup_path)
+#remove_local_backup(full_local_backup_path)
+
+send_discord_notification(discord_webhook)
 
 print("Script finished")                           
