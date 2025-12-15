@@ -101,7 +101,6 @@ services:
     pid: host
     networks:
      - proxy
-    network_mode: host
     restart: unless-stopped
     cap_add:
       - SYS_PTRACE
