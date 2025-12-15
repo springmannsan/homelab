@@ -99,14 +99,6 @@ def send_email(port, smtp_server, email_sender, email_receiver, password, messag
         print(f"Unexpected error sending email: {e}")
 
 def build_message(full_path, directories_to_backup, local_result, upload_response, email_sender, email_receiver, now) -> MIMEMultipart:
-
-    if not local_result:
-        print("Local backup missing")
-        return
-    
-    if not upload_response:
-        print("Remote backup missing")
-        return
     
     local_backup_successful = False
     local_backup_path = "N/A"
@@ -128,7 +120,7 @@ def build_message(full_path, directories_to_backup, local_result, upload_respons
 
 
     try: 
-        if upload_response.file_name and upload_response.size:
+        if upload_response and (upload_response.file_name and upload_response.size):
             uploaded_backup_path = upload_response.file_name
             uploaded_backup_size = upload_response.size
             upload_successful = upload_response.size > 0
@@ -159,23 +151,24 @@ def build_message(full_path, directories_to_backup, local_result, upload_respons
                 </tr>
     """
 
-    all_size = 0
-    all_folders_successful = True
-    for d in directories_to_backup:
-        folder_successful = False
-        size = 0
-        for item in local_result:
-            if item.path.startswith(d[1:]):
-                size += item.size
-        folder_successful = size > 0
-        if not folder_successful:
-            all_folders_successful = False
-        html_message += f'<tr class="{"success" if folder_successful else "failed"}">'
-        html_message += f"<td>{"Success" if folder_successful else "Failed"}"
-        html_message += f"<td>{d}</td>"
-        html_message += f"<td>{size / (1024 * 1024):.2f}</td>"
-        html_message += "</tr>"
-        all_size += size
+    if local_result:
+        all_size = 0
+        all_folders_successful = True
+        for d in directories_to_backup:
+            folder_successful = False
+            size = 0
+            for item in local_result:
+                if item.path.startswith(d[1:]):
+                    size += item.size
+            folder_successful = size > 0
+            if not folder_successful:
+                all_folders_successful = False
+            html_message += f'<tr class="{"success" if folder_successful else "failed"}">'
+            html_message += f"<td>{"Success" if folder_successful else "Failed"}"
+            html_message += f"<td>{d}</td>"
+            html_message += f"<td>{size / (1024 * 1024):.2f}</td>"
+            html_message += "</tr>"
+            all_size += size
 
     html_message += f"""\
                 <tr class="{"success" if all_folders_successful else "failed"}">
