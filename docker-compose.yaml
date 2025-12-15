@@ -131,8 +131,11 @@ services:
 
 volumes:
   netdataconfig:
+    name: netdata_config
   netdatalib:
+    name: netdata_lib
   netdatacache:
+    name: netdata_cache
   portainer_data:
     name: portainer_data
 networks:
