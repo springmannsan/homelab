@@ -151,9 +151,9 @@ def build_message(full_path, directories_to_backup, local_result, upload_respons
                 </tr>
     """
 
+    all_size = 0
+    all_folders_successful = True
     if local_result:
-        all_size = 0
-        all_folders_successful = True
         for d in directories_to_backup:
             folder_successful = False
             size = 0
