@@ -47,7 +47,7 @@ def upload_backup(local_result, backup_path, backup_name):
         print("No local backup found")
         return None
     
-    if not (local_result and local_result > 0):
+    if not (local_result and len(local_result) > 0):
         print("Local backup empty")
         return None
     
@@ -113,7 +113,7 @@ def build_message(full_path, directories_to_backup, local_result, upload_respons
     uploaded_backup_size = 0
 
     try:
-        if os.path.exists(full_path) and (local_result and local_result > 0):
+        if os.path.exists(full_path) and (local_result and len(local_result) > 0):
             local_backup_path = full_path
             local_backup_size = os.path.getsize(full_path)
             local_backup_successful = local_backup_size > 0
@@ -156,7 +156,7 @@ def build_message(full_path, directories_to_backup, local_result, upload_respons
 
     all_size = 0
     all_folders_successful = False
-    if local_result and local_result > 0:
+    if local_result and len(local_result) > 0:
         all_folders_successful = True
         for d in directories_to_backup:
             folder_successful = False
