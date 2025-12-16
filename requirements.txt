@@ -4,7 +4,6 @@ certifi==2025.11.12
 charset-normalizer==3.4.4
 discord-webhook==1.4.1
 dotenv==0.9.9
-idna==3.11
 logfury==1.0.1
 python-dotenv==1.2.1
 requests==2.32.5
