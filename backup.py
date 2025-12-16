@@ -208,7 +208,7 @@ print("Loading variables")
 
 now = datetime.now()
 
-#DELETE FOR PRODUCTION
+#COMMENT OUT DELETE FOR PRODUCTION
 load_dotenv() 
 
 try:

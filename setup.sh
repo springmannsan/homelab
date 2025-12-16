@@ -3,24 +3,27 @@
 source .env
 
 # basic configurations
-mkdir /srv/share
-chown $USER /srv/share
-chmod 750 /srv/share
+mkdir /srv/data
+chown $USER /srv/data
+chmod 750 /srv/data
 
-mkdir /srv/backups
-chown root /srv/backups
-chmod 750 /srv/backups
+mkdir /srv/data/share
+chown $USER /srv/data/share
+chmod 750 /srv/data/share
+
+mkdir /srv/data/backups
+chown root /srv/data/backups
+chmod 750 /srv/data/backups
 
 #apt update and upgrade
 apt-get update
 apt-get -y upgrade
 
 # samba install and setup
-
 apt-get -y install samba
 echo "[$SHARE_NAME]" >> /etc/samba/smb.conf
 echo "  comment = Samaba on Ubuntu" >> /etc/samba/smb.conf
-echo "  path = /srv/share" >> /etc/samba/smb.conf
+echo "  path = /srv/data/share" >> /etc/samba/smb.conf
 echo "  read only = no" >> /etc/samba/smb.conf
 echo "  browsable = yes" >> /etc/samba/smb.conf
 
