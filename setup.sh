@@ -40,10 +40,12 @@ chown root ./backup.py
 chmod 750 ./backup.py
 echo "0 4 * * * root cd /provision/homelab && /usr/bin/python3 ./backup.py >> ./backup.log" >> /etc/crontab
 
-#docker
+################################ tailscale
 
-#setup docker apt repository
-#https://docs.docker.com/engine/install/ubuntu/
+curl -fsSL https://tailscale.com/install.sh | sh
+tailscale up --auth-key=$TAILSCALE_AUTH_KEY
+
+################################# docker 
 
 # Add Docker's official GPG key:
 apt install ca-certificates curl
