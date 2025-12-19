@@ -198,11 +198,11 @@ print("Loading variables")
 
 now = datetime.now()
 
-#COMMENT OUT DELETE FOR PRODUCTION
+#COMMENT OUT FOR PRODUCTION
 load_dotenv() 
 
 try:
-    directories_to_backup = open("backup.directories.conf").read().splitlines()
+    directories_to_backup = open("/etc/backup/backup.directories.conf").read().splitlines()
 except FileNotFoundError as e:
     print(f"File not found error: {e}")
 except PermissionError as e:
