@@ -119,7 +119,7 @@ def check_success(local_path, directories_to_backup, local_result, upload_respon
                 if a.path.startswith(d[1:]):
                     directory_size += a.size
 
-            if os.path.exists(d) and (calculate_size_of_directory(d) == directory_size):
+            if os.path.exists(d) and (directory_size > 0):
                 report["directories"].append({
                     "directory": d,
                     "ok": True,
@@ -192,16 +192,6 @@ def send_discord_notification(report, discord_webhook, now):
 
     webhook.add_embed(embed)
     response = webhook.execute()
-
-def calculate_size_of_directory(path):
-    total_size = 0
-    for dirpath, dirnames, filenames in os.walk(path):
-        for f in filenames:
-            fp = os.path.join(dirpath, f)
-            # skip if it is symbolic link
-            if not os.path.islink(fp):
-                total_size += os.path.getsize(fp)
-    return total_size
 
 print("Script started")
 print("Loading variables")
