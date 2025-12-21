@@ -1,25 +1,32 @@
 #!/bin/bash
 
-source .env
+# Exit on any failure
+set -euo pipefail
 
-# basic configurations
-mkdir /srv/data
-chown $USER /srv/data
-chmod 750 /srv/data
+########## SET ENVIRONMENTAL VARIABLES
 
-mkdir /srv/data/share
+#set every environmental variables from .env, except those that start with '#'
+if [ -f .env ]; then
+    export $(grep -v '^#' .env | xargs)
+fi
+
+#error function
+err() {
+    echo "ERROR: $*" >&2; exit 1;
+}
+
+info() {
+    echo "INFO: $*"; 
+}
+
+#apt update and upgrade
+apt-get update && apt-get -y upgrade
+# samba install and setup
+
+mkdir -p /srv/data/share
 chown $USER /srv/data/share
 chmod 750 /srv/data/share
 
-mkdir /srv/data/backups
-chown root /srv/data/backups
-chmod 750 /srv/data/backups
-
-#apt update and upgrade
-apt-get update
-apt-get -y upgrade
-
-# samba install and setup
 apt-get -y install samba
 echo "[$SHARE_NAME]" >> /etc/samba/smb.conf
 echo "  comment = Samaba on Ubuntu" >> /etc/samba/smb.conf
@@ -30,15 +37,27 @@ echo "  browsable = yes" >> /etc/samba/smb.conf
 service smbd restart
 ufw allow samba
 
-echo "Provide SMB password for $USER:" 
-smbpasswd -a $USER
+echo "Provide SMB password for $SAMBA_USER:" 
+smbpasswd -a $SAMBA_USER
 
 # backup script
+
+mkdir -p /srv/data/backups
+chown root /srv/data/backups
+chmod 750 /srv/data/backups
+
+mkdir -p /etc/backup
+chmod 750 /etc/backup
+
+mkdir -p /var/log/backup
+chmod 750 /var/log/backup
+
 apt-get -y install python3-pip
 pip3 install -r requirements.txt --break-system-packages
 chown root ./backup.py
 chmod 750 ./backup.py
-echo "0 4 * * * root cd /provision/homelab && /usr/bin/python3 ./backup.py >> ./backup.log" >> /etc/crontab
+cp ./backup.directories.conf /etc/backup/backup.directories.conf
+echo "0 4 * * * root /usr/bin/python3 /provision/homelab/backup.py >> /var/log/backup/backup.log" >> /etc/crontab
 
 ################################ tailscale
 
@@ -69,7 +88,7 @@ apt -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker
 systemctl start docker
 
 #post installation steps
-usermod -aG docker $USER
+usermod -aG docker $SAMBA_USER
 
 #start containers
 chmod 600 ./cert/acme.json
