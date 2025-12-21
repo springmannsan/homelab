@@ -3,21 +3,27 @@
 # Exit on any failure
 set -euo pipefail
 
-########## SET ENVIRONMENTAL VARIABLES
-
-#set every environmental variables from .env, except those that start with '#'
-if [ -f .env ]; then
-    export $(grep -v '^#' .env | xargs)
-fi
-
 #error function
 err() {
     echo "ERROR: $*" >&2; exit 1;
 }
-
+#info function
 info() {
     echo "INFO: $*"; 
 }
+
+#set every environmental variables from .env, except those that start with '#'
+if [ -f .env ]; then
+    set -o allexport
+    . .env
+    set +o allexport
+    info "Loaded .env"
+fi
+
+#check root user id
+if [ "$(id -u)" -ne 0 ]; then
+    err "This script must be run as root (sudo)"
+fi
 
 #apt update and upgrade
 apt-get update && apt-get -y upgrade
