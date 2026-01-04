@@ -68,7 +68,7 @@ services:
       - "traefik.enable=true"
 
       # Dashboard router
-      - "traefik.http.routers.dashboard.rule=Host(`dashboard.${NAME}`)"
+      - "traefik.http.routers.dashboard.rule=Host(`dashboard.${DOMAIN_NAME}`)"
       - "traefik.http.routers.dashboard.entrypoints=websecure"
       - "traefik.http.routers.dashboard.service=api@internal"
 
@@ -88,7 +88,7 @@ services:
     labels:
       # proxy settings
       - "traefik.enable=true"
-      - "traefik.http.routers.portainer.rule=Host(`portainer.${NAME}`)"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.${DOMAIN_NAME}`)"
       - "traefik.http.routers.portainer.entrypoints=websecure"
       - "traefik.http.services.portainer.loadbalancer.server.port=9000"
       - "traefik.http.routers.portainer.service=portainer"
@@ -124,7 +124,7 @@ services:
     labels:
       # proxy settings
       - "traefik.enable=true"
-      - "traefik.http.routers.netdata.rule=Host(`netdata.${NAME}`)"
+      - "traefik.http.routers.netdata.rule=Host(`netdata.${DOMAIN_NAME}`)"
       - "traefik.http.routers.netdata.entrypoints=websecure"
       - "traefik.http.services.netdata.loadbalancer.server.port=19999"
       - "traefik.http.routers.netdata.service=netdata"

@@ -3,7 +3,6 @@
 # Exit on any failure
 set -euo pipefail
 
-#error function
 err() {
     echo "ERROR: $*" >&2; exit 1;
 }
@@ -12,12 +11,9 @@ info() {
     echo "INFO: $*"; 
 }
 
-#set every environmental variables from .env, except those that start with '#'
+#set environmental variables for the root profile
 if [ -f .env ]; then
-    set -o allexport
-    . .env
-    set +o allexport
-    info "Loaded .env"
+    export $(grep -v '^#' .env | xargs)
 fi
 
 #check root user id
@@ -34,11 +30,23 @@ chown $USER /srv/data/share
 chmod 750 /srv/data/share
 
 apt-get -y install samba
-echo "[$SHARE_NAME]" >> /etc/samba/smb.conf
-echo "  comment = Samaba on Ubuntu" >> /etc/samba/smb.conf
-echo "  path = /srv/data/share" >> /etc/samba/smb.conf
-echo "  read only = no" >> /etc/samba/smb.conf
-echo "  browsable = yes" >> /etc/samba/smb.conf
+# echo "[$SHARE_NAME]" >> /etc/samba/smb.conf
+# echo "  comment = Samaba on Ubuntu" >> /etc/samba/smb.conf
+# echo "  path = /srv/data/share" >> /etc/samba/smb.conf
+# echo "  read only = no" >> /etc/samba/smb.conf
+# echo "  browsable = yes" >> /etc/samba/smb.conf
+share_block="
+[$SHARE_NAME]
+    comment = Homeshare
+    path = /srv/data/share
+    read only = no
+    browsable = yes
+"
+
+if ! grep -q "^\[$SHARE_NAME\]$" /etc/samba/smb.conf; then
+    echo "$share_block" >> /etc/samba/smb.conf
+fi
+
 
 service smbd restart
 ufw allow samba
@@ -92,9 +100,6 @@ apt update
 #install
 apt -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 systemctl start docker
-
-#post installation steps
-usermod -aG docker $SAMBA_USER
 
 #start containers
 chmod 600 ./cert/acme.json
